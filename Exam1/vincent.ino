@@ -15,6 +15,7 @@ int valON_V = 101;
 int valON_J = 501;
 int valON_R = 901;
 bool ledState = LOW;
+bool ledStateBonus = LOW;
 Bounce bouton = Bounce();
 
 void setup() {
@@ -28,60 +29,57 @@ void setup() {
   pinMode(LEDJ_PIN,OUTPUT); // LED Jaune
   pinMode(LEDR_PIN,OUTPUT); // LED Rouge
   pinMode(LEDBLINK_PIN,OUTPUT); // LED BLINK BONUS
-
+  TIME_NOW = millis();
 }
 
 void loop() {
   
+  TIME_NOW = millis();
   bouton.update();
   valPot = analogRead(A5);
-  TIME_NOW = millis(); //reset millis a 0
-  Serial.println(valPot);
+  Serial.println(ledStateBonus);
 
-  if (bouton.fell() ) 
+if (bouton.fell() ) 
     {
       ledState = !ledState ;
       digitalWrite(13,ledState);
+      
     }
 
- if( millis() < TIME_NOW + PERIODE) //Temps entre 0 et 1 secondes ON
+if( TIME_NOW % PERIODE == 0) //Temps entre 0 et 1 secondes ON
     {
-      digitalWrite(2,HIGH);
-      TIME_AFTERON = millis();
-    }
-
-if(millis() < (TIME_AFTERON + PERIODE))
-    {      
-      digitalWrite(2, LOW);
+      ledStateBonus = !ledStateBonus ;
+      digitalWrite(LEDBLINK_PIN,ledStateBonus);
+      TIME_NOW = millis();
     }
   
 if (ledState == 0)
-  {  
-    if (valPot >= valON_V)
-      {    
-        digitalWrite(LEDV_PIN,HIGH);
-      }
-      else 
-        {
-          digitalWrite(LEDV_PIN,LOW);
+    {  
+      if (valPot >= valON_V)
+        {    
+          digitalWrite(LEDV_PIN,HIGH);
         }
+        else 
+          {
+            digitalWrite(LEDV_PIN,LOW);
+          }
 
-    if (valPot >= valON_J)
-      {
-        digitalWrite(LEDJ_PIN,HIGH);
-      }
-      else 
+      if (valPot >= valON_J)
         {
-          digitalWrite(LEDJ_PIN,LOW);
+          digitalWrite(LEDJ_PIN,HIGH);
         }
+        else 
+          {
+            digitalWrite(LEDJ_PIN,LOW);
+          }
 
-    if (valPot >= valON_R)
-      {
-        digitalWrite(LEDR_PIN,HIGH);
-      }
-      else 
+      if (valPot >= valON_R)
         {
-          digitalWrite(LEDR_PIN,LOW);
+          digitalWrite(LEDR_PIN,HIGH);
         }
-  }
+        else 
+          {
+            digitalWrite(LEDR_PIN,LOW);
+          }
+    }
 }
