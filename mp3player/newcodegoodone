@@ -42,6 +42,8 @@ const byte STARTSTOP_PIN = 2;
 const byte NEXTSONG_PIN = 3;
 const byte SOUNDOUT_PIN = 5;
 
+int volume;
+
 TMRpcm audio;  //  Objet TMRpcm nommé "musique"
 
 File root;
@@ -59,18 +61,20 @@ Bounce nextSongButton = Bounce();
 
 void setup() {
 
-  Serial.begin(115200);  //  initialisation du port série
+  Serial.begin(115200); 
 
   startStopButton.attach(STARTSTOP_PIN, INPUT_PULLUP);
   nextSongButton.attach(NEXTSONG_PIN, INPUT_PULLUP);
-  
+
   startStopButton.interval(5);
   nextSongButton.interval(5);
 
 
+  audio.speakerPin = 11;
+  audio.setVolume(0);
 
+  volume = 0;
 
-  //  initialisation de la carte SD
   if (SD.begin()) {
     Serial.println("La carte SD a été initialisée");
 
@@ -81,9 +85,6 @@ void setup() {
     Serial.println("L’initialisation de la carte SD a échoué!");
     return;
   }
-  
-
-
 }
 
 
@@ -100,7 +101,6 @@ void printDirectory(File dir, int numTabs) {
         Serial.println("** Done **");
 
       return;
-
     }
 
 
@@ -108,69 +108,89 @@ void printDirectory(File dir, int numTabs) {
 
       Serial.print('\t');
 
-
     Serial.println(entry.name());
 
 
-//    if (entry.isDirectory()) {
-//
-//      Serial.println("/");
-//
-//      printDirectory(entry, numTabs + 1);
-//
-//    } else {
-//
-//      Serial.print("\t\t");
-//
-//      Serial.println(entry.size(), DEC);
-//
-    }
-
-
-//    entry.close();
-
+    //    if (entry.isDirectory()) {
+    //
+    //      Serial.println("/");
+    //
+    //      printDirectory(entry, numTabs + 1);
+    //
+    //    } else {
+    //
+    //      Serial.print("\t\t");
+    //
+    //      Serial.println(entry.size(), DEC);
+    //
   }
+  //    entry.close();
+}
 
- 
-    
-  
-  
+
+
+
+
 //}
 
 void loop() {
 
-  if(Serial.available()){   
+  if (Serial.available()) {
     mychar = Serial.read();
 
-    if(mychar == 'p'){ //send the letter p over the serial monitor to start playback
-      
-      audio.play("automation.wav");
+    if (mychar == 'p') {  
+
+      audio.play("test.wav");
       Serial.println("kglw baby");
 
     }
-    
-    else if(mychar == 's'){ //send the letter p over the serial monitor to start playback
-      
-      if(audio.isPlaying() == 1){
-        
+
+    else if (mychar == 's') {  
+
+      if (audio.isPlaying() == 1) {
+
         Serial.println("is playing");
 
-      }
+
+      } 
+    }
+    
+    
+    else if (mychar == 'd') {  
+
+        audio.stopPlayback();
       
+    } 
+    
+    else if (mychar == '=') {
+
+      audio.volume(1);
+
+      if (volume > 0 && volume < 7) {
+        volume = volume + 1;
+
+        Serial.println("Volume ");
+        Serial.print(volume);
+        Serial.print(" /7 ");
+      }
 
     }
-  
-  
-  
-  
+
+    else if (mychar == '-') {
+
+      audio.volume(0);
+
+      if (volume > 0 && volume < 7) {
+        volume = volume - 1;
+
+        Serial.println("Volume ");
+        Serial.print(volume);
+        Serial.print(" /7 ");
+      }
+    }
   }
-
-
-
-
 }
 
-  
 //else if(nextSongButton.fell()){
 //
 //    file.openNextFile();
@@ -178,7 +198,3 @@ void loop() {
 //    File entry = dir.openNextFile();
 //    if (!entry) {
 //      file.rewindDirectory();
-
-
-
-
