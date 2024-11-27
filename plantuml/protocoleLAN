@@ -1,0 +1,65 @@
+@startuml Two Modes - Technical View
+' Uncomment the line below for "dark mode" styling
+'!$AWS_DARK = true
+
+!include  https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist
+!include AWSPuml/AWSCommon.puml
+
+' Uncomment the following line to create simplified view
+' !include AWSPuml/AWSSimplified.puml
+
+!include AWSPuml/General/Users.puml
+!include AWSPuml/ApplicationIntegration/APIGateway.puml
+!include AWSPuml/SecurityIdentityCompliance/Cognito.puml
+!include AWSPuml/Compute/Lambda.puml
+!include AWSPuml/Database/DynamoDB.puml
+!include AWSPuml/General/Servers.puml
+!include AWSPuml/ManagementGovernance/OpsWorks.puml
+!include AWSPuml/General/Internet.puml
+!include AWSPuml/General/GitRepository.puml
+!include AWSPuml/SecurityIdentityCompliance/IdentityAccessManagementIAMAccessAnalyzer.puml
+
+
+
+
+
+
+
+Servers(pc15, "PC 15", "192.168.1.15")
+Servers(pc16, "PC 16", "192.168.1.16")
+Servers(pc17, "PC 17", "192.168.1.17")
+Servers(pc18, "PC 18", "192.168.1.18")
+
+OpsWorks(patch,"Patch","")
+Internet(reseau,"Reaseau CVM","")
+GitRepository(control,"Controle","")
+IdentityAccessManagementIAMAccessAnalyzer(switch,"Communateur","")
+
+
+
+
+patch <-d-> switch
+patch <-d-> switch
+patch <-d-> switch
+patch <-d-> switch
+
+
+pc15 <--> patch : PC15
+pc16 <--> patch : PC16
+pc17 <--> patch : PC17
+pc18 <--> patch : PC18
+
+
+pc15 -r--> control
+pc16 -r--> control
+pc17 -r--> control
+pc18 -r--> control
+
+pc15 <-l-> reseau 
+pc16 <-l-> reseau 
+pc17 <-l-> reseau 
+pc18 <-l-> reseau 
+
+footer %filename() rendered with PlantUML version %version()\nThe Hitchhiker’s Guide to PlantUML
+@enduml
