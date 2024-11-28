@@ -1,3 +1,9 @@
+#include <TMRpcm.h>
+#include <pcmConfig.h>
+#include <pcmRF.h>
+
+#include <SD.h>
+
 
 
 /*********************************************************************************************
@@ -26,6 +32,8 @@
  *    par défaut, MOSI, MISO et CLK doivent être sur 11, 12, et 13 pour Arduino UNO.
 
  *********************************************************************************************/
+
+
 #include <Bounce2.h>
 #include <SD.h>
 #include <SPI.h>
@@ -42,7 +50,11 @@ const byte STARTSTOP_PIN = 2;
 const byte NEXTSONG_PIN = 3;
 const byte SOUNDOUT_PIN = 5;
 
+int positionCurrentSong = 1 ;
 int volume;
+int index;
+
+int i = 0 ;
 
 TMRpcm audio;  //  Objet TMRpcm nommé "musique"
 
@@ -51,39 +63,9 @@ File root;
 char mychar;
 
 
+char trackList [10] [20] ;
 
 
-
-
-
-// a faire 
- 
-int trackList[2][10] = {
-  {file.position(1), SONG NAME TO PRINT}
-  {SONG2 FILE TO READ, SONG2 NAME TO PRINT}
-  {SONG3 FILE TO READ, SONG3 NAME TO PRINT}
-
-  THEN AUDIO.PLAY(trackList[currentSong])
-
-
-  print
-
-}
-
-// a faire 
-
-
-
-
-
-
-
-
-
-
-
-
-currentSong = 1;
 
 Bounce startStopButton = Bounce();
 Bounce nextSongButton = Bounce();
@@ -109,17 +91,28 @@ void setup() {
   if (SD.begin()) {
     Serial.println("La carte SD a été initialisée");
 
-    root = SD.open("music"); 
-    printDirectory(musique, 0);
+    root = SD.open("/"); 
+    printDirectory(root);
+    index = 1 ;
+    audio.setVolume(4);
+    
 
   } else {
     Serial.println("L’initialisation de la carte SD a échoué!");
     return;
   }
+
+
+
 }
 
 
-void printDirectory(File dir, int numTabs) {
+
+
+
+void printDirectory(File dir) {
+
+
 
   while (true) {
 
@@ -127,46 +120,65 @@ void printDirectory(File dir, int numTabs) {
 
     if (!entry) {
 
-      if (numTabs == 0)
-
-        Serial.println("** Done **");
+      Serial.println("** Done **");
 
       return;
     }
-
-
-    for (uint8_t i = 0; i < numTabs; i++)
-
-      Serial.print('\t');
-
+  
     Serial.println(entry.name());
+    
+  
+    strcpy(trackList[i],entry.name());
+
+    i++ ;
   }
+
 }
 
 
 void loop (){
-  if (startStopButton.fell){
-    if(audio.isPlaying){
-      audio.stopPlayback();
-      Serial.println(file.name(currentSong));
-      Serial.print(Pause);
+  
+  if (Serial.available()) {
+    mychar = Serial.read();
+    
+    if (mychar == 'p') {  
+      if(audio.isPlaying()){
+        
+        Serial.println(index);
+        Serial.println("Pause");
+        audio.stopPlayback();
+        
+      }
+      else  {
+        Serial.println(index);
+        Serial.println("Playing");
+        audio.play(trackList[index]);
+      }
     }
-    else if{
-      audio.play(currentSong);
-      Serial.println(file.name(currentSong));
-      Serial.print(Playing);
+    
+    else if (mychar == 's') {
+      
+      Serial.println(trackList[index]);
+      
     }
-  } else if(nextSongButton.fell()){
-    if(currentSong < 11){
-      audio.play(currentSong + 1)
-      currentSong = currentSong + 1;
+
+    else if (mychar == 'n') {
+      
+      if (index <= i){
+        
+        index++ ;
+        audio.play(trackList[index]);
+      
+      } else {
+        index = 1;
+      }
     }
-    else if(currentSong < 11){
-      currentSong = 1;
-      audio.play(currentSong)
-    }
-  }    
-}
+    
+  }
+}  
+
+
+
 
 
 
