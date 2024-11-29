@@ -1,7 +1,6 @@
 #include <TMRpcm.h>
 #include <pcmConfig.h>
 #include <pcmRF.h>
-
 #include <SD.h>
 
 
@@ -50,31 +49,28 @@ const byte STARTSTOP_PIN = 2;
 const byte NEXTSONG_PIN = 3;
 const byte SOUNDOUT_PIN = 5;
 
-int positionCurrentSong = 1 ;
+int positionCurrentSong = 1;
 int volume;
 int index;
+int i = 0;
 
-int i = 0 ;
-
-TMRpcm audio;  //  Objet TMRpcm nommé "musique"
+TMRpcm audio;
 
 File root;
 
 char mychar;
 
 
-char trackList [10] [20] ;
-
+char trackList[10][20];
 
 
 Bounce startStopButton = Bounce();
 Bounce nextSongButton = Bounce();
 
 
-
 void setup() {
 
-  Serial.begin(115200); 
+  Serial.begin(115200);
 
   startStopButton.attach(STARTSTOP_PIN, INPUT_PULLUP);
   nextSongButton.attach(NEXTSONG_PIN, INPUT_PULLUP);
@@ -86,33 +82,24 @@ void setup() {
   audio.speakerPin = 11;
   audio.setVolume(0);
 
-  volume = 0;
 
   if (SD.begin()) {
     Serial.println("La carte SD a été initialisée");
 
-    root = SD.open("/"); 
+    root = SD.open("/");
     printDirectory(root);
-    index = 1 ;
+    index = 1;
     audio.setVolume(4);
-    
+
 
   } else {
     Serial.println("L’initialisation de la carte SD a échoué!");
     return;
   }
-
-
-
 }
 
 
-
-
-
 void printDirectory(File dir) {
-
-
 
   while (true) {
 
@@ -124,66 +111,51 @@ void printDirectory(File dir) {
 
       return;
     }
-  
+
     Serial.println(entry.name());
-    
-  
-    strcpy(trackList[i],entry.name());
 
-    i++ ;
+    strcpy(trackList[i], entry.name());
+
+    i++;
   }
-
 }
 
 
-void loop (){
-  
+void loop() {
+
   if (Serial.available()) {
     mychar = Serial.read();
-    
-    if (mychar == 'p') {  
-      if(audio.isPlaying()){
-        
+
+    if (mychar == 'p') {
+      if (audio.isPlaying()) {
+
         Serial.println(index);
         Serial.println("Pause");
         audio.stopPlayback();
-        
-      }
-      else  {
+
+      } else {
         Serial.println(index);
         Serial.println("Playing");
         audio.play(trackList[index]);
       }
     }
-    
+
     else if (mychar == 's') {
-      
+
       Serial.println(trackList[index]);
-      
+
     }
 
     else if (mychar == 'n') {
-      
-      if (index <= i){
-        
-        index++ ;
+
+      if (index <= i) {
+
+        index++;
         audio.play(trackList[index]);
-      
+
       } else {
         index = 1;
       }
     }
-    
   }
-}  
-
-
-
-
-
-
-
-
-
-
- 
+}
