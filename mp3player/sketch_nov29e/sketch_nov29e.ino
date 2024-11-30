@@ -123,6 +123,7 @@ void loop() {
         printSongList();
         break;
         case 's':
+        Serial.println("testing branch");
     }
   }
 }
