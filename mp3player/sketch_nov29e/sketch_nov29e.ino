@@ -123,10 +123,6 @@ void loop() {
         printSongList();
         break;
         case 's':
-          Serial.print("maxSongs  = ");
-          Serial.println(maxSongs);
-          Serial.print("index = ");
-          Serial.println(index);
     }
   }
 }
