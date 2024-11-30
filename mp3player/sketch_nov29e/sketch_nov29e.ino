@@ -1,10 +1,3 @@
-#include <TMRpcm.h>
-#include <pcmConfig.h>
-#include <pcmRF.h>
-#include <SD.h>
-
-
-
 /*********************************************************************************************
  *  Lecteur de musique Arduino
  *  par Vincent Brochu
@@ -31,16 +24,12 @@
  *    par défaut, MOSI, MISO et CLK doivent être sur 11, 12, et 13 pour Arduino UNO.
 
  *********************************************************************************************/
-
-
 #include <Bounce2.h>
 #include <SD.h>
 #include <SPI.h>
 #include <TMRpcm.h>
 #include <pcmConfig.h>
 #include <pcmRF.h>
-
-
 const byte SD_CS_PIN = 53;    // Carte SD (SS) sur la pin 10
 const byte SD_MOSI_PIN = 51;  // Carte SD (MOSI) sur la pin 11
 const byte SD_MISO_PIN = 50;  // Carte SD (MISO) sur la pin 12
@@ -53,10 +42,9 @@ int volume;
 int index;
 int maxSongs = 1;
 int val;
+char mychar;
 TMRpcm audio;
 File root;
-char mychar;
-
 Bounce startStopButton = Bounce();
 Bounce nextSongButton = Bounce();
 char trackList[255][20];
@@ -94,17 +82,17 @@ void printDirectory(File dir) {
     strcpy(trackList[i], entry.name());
     i++;
   }
-  maxSongs = i - 1 ;
+  maxSongs = i - 1;
 }
 
 void loop() {
 
   val = analogRead(0);
-  audio.setVolume(volumeLevel(val)); 
+  audio.setVolume(volumeLevel(val));
 
   if (Serial.available()) {
     mychar = Serial.read();
-    switch(mychar) {
+    switch (mychar) {
       case 'p':
         if (audio.isPlaying()) {
           audio.stopPlayback();
@@ -117,12 +105,12 @@ void loop() {
         if (index < maxSongs) {
           index++;
           audio.play(trackList[index]);
-        } else{
+        } else {
           index = 1;
         }
         printSongList();
         break;
-        case 's':
+      case 's':
         Serial.println("testing branch");
     }
   }
