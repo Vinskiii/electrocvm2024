@@ -51,16 +51,15 @@ const byte SOUNDOUT_PIN = 5;
 int positionCurrentSong = 1;
 int volume;
 int index;
-int i = 0;
+int maxSongs = 1;
 int val;
-//int isPaused?;
 TMRpcm audio;
 File root;
 char mychar;
-char trackList[10][20];
+
 Bounce startStopButton = Bounce();
 Bounce nextSongButton = Bounce();
-
+char trackList[255][20];
 
 void setup() {
   Serial.begin(115200);
@@ -84,77 +83,67 @@ void setup() {
 
 
 void printDirectory(File dir) {
+  int i = 0;
   while (true) {
     File entry = dir.openNextFile();
     if (!entry) {
       Serial.println("** Done **");
-      return;
+      break;
     }
     Serial.println(entry.name());
     strcpy(trackList[i], entry.name());
     i++;
   }
+  maxSongs = i - 1 ;
 }
 
 void loop() {
 
   val = analogRead(0);
-  audio.setVolume(volumeLevel);
-  
+  audio.setVolume(volumeLevel(val)); 
+
   if (Serial.available()) {
     mychar = Serial.read();
-    Serial.println(mychar);
-    if (mychar == 'p') {
-      if (audio.isPlaying()) {
-        for (int songList = 1; songList < i;) {
-          Serial.print(trackList[songList]);
-          if (index == songList) {
-            Serial.print("     Paused");
-          }
-          Serial.println("");
-          songList++;
+    switch(mychar) {
+      case 'p':
+        if (audio.isPlaying()) {
+          audio.stopPlayback();
+        } else {
+          audio.play(trackList[index]);
         }
-        audio.stopPlayback();
-      } else {
-        for (int songList = 1; songList < i;) {
-          Serial.print(trackList[songList]);
-          if (index == songList) {
-            Serial.print("     Playing");
-          }
-          Serial.println("");
-          songList++;
+        printSongList();
+        break;
+      case 'n':
+        if (index < maxSongs) {
+          index++;
+          audio.play(trackList[index]);
+        } else{
+          index = 1;
         }
-        audio.play(trackList[index]);
-      }
-    } else if (mychar == 's') {
-      for (int songList = 1; songList < i;) {
-        Serial.print(trackList[songList]);
-        if (index == songList) {
-          Serial.print("     Playing");
-        }
-        Serial.println("");
-        songList++;
-      }
-    } else if (mychar == 'n') {
-      if (index <= i) {
-        index++;
-        for (int songList = 1; songList < i;) {
-          Serial.print(trackList[songList]);
-          if (index == songList) {
-            Serial.print("     Playing");
-          }
-          Serial.println("");
-          songList++;
-        }
-        audio.play(trackList[index]);
-      } else {
-        index = 0;
-      }
+        printSongList();
+        break;
+        case 's':
+          Serial.print("maxSongs  = ");
+          Serial.println(maxSongs);
+          Serial.print("index = ");
+          Serial.println(index);
     }
   }
 }
-
 int volumeLevel(int val) {
-  val = map(val, 0, 1023, 0, 7 );
+  val = map(val, 0, 1023, 0, 7);
   return val;
+}
+void printSongList() {
+  for (int songList = 1; songList <= maxSongs; songList++) {
+    Serial.print(trackList[songList]);
+    if (index == songList) {
+      if (audio.isPlaying()) {
+        Serial.print("     Playing");
+      } else {
+        Serial.print("     Pause");
+      }
+    }
+    Serial.println("");
+  }
 }
