@@ -1,19 +1,19 @@
 /*********************************************************************************************
  *  Lecteur de musique Arduino
  *  par Vincent Brochu
- * 
+ *
  *  Pour la conversion des fichiers audio en fichier .wav avec les paramètres suivants :
  *    bit resolution : 8 Bit
  *    sampling rate  : 32000 Hz
  *    audio channel  : mono
- *  
+ *
  *  Pour convertir gratuitement : https://audio.online-convert.com/convert-to-wav
  *
  ********************************************************************************************/
 
 /*********************************************************************************************
  *  Connexions du circuit
- *  
+ *
  *  pin 2 : Bouton Lecture / Arrêt
  *  pin 3 : Bouton Chanson suivante
  *  pin 9 : Sortie Audio
@@ -30,14 +30,13 @@
 #include <TMRpcm.h>
 #include <pcmConfig.h>
 #include <pcmRF.h>
-const byte SD_CS_PIN = 53;    // Carte SD (SS) sur la pin 10
-const byte SD_MOSI_PIN = 51;  // Carte SD (MOSI) sur la pin 11
-const byte SD_MISO_PIN = 50;  // Carte SD (MISO) sur la pin 12
-const byte SD_CLK_PIN = 52;   // Carte SD (SCK) sur la pin 13
+const byte SD_CS_PIN = 53;   // Carte SD (SS) sur la pin 10
+const byte SD_MOSI_PIN = 51; // Carte SD (MOSI) sur la pin 11
+const byte SD_MISO_PIN = 50; // Carte SD (MISO) sur la pin 12
+const byte SD_CLK_PIN = 52;  // Carte SD (SCK) sur la pin 13
 const byte STARTSTOP_PIN = 2;
 const byte NEXTSONG_PIN = 3;
 const byte SOUNDOUT_PIN = 5;
-int positionCurrentSong = 1;
 int volume;
 int index;
 int maxSongs = 1;
@@ -49,7 +48,8 @@ Bounce startStopButton = Bounce();
 Bounce nextSongButton = Bounce();
 char trackList[255][20];
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   startStopButton.attach(STARTSTOP_PIN, INPUT_PULLUP);
   nextSongButton.attach(NEXTSONG_PIN, INPUT_PULLUP);
@@ -57,79 +57,99 @@ void setup() {
   nextSongButton.interval(5);
   audio.speakerPin = 11;
   audio.setVolume(0);
-  if (SD.begin()) {
+  if (SD.begin())
+  {
     Serial.println("La carte SD a été initialisée");
     root = SD.open("/");
     printDirectory(root);
     index = 1;
     audio.setVolume(4);
-  } else {
+  }
+  else
+  {
     Serial.println("L’initialisation de la carte SD a échoué!");
     return;
   }
 }
 
-
-void printDirectory(File dir) {
+void printDirectory(File dir)
+{
   int i = 0;
-  while (true) {
-    File entry = dir.openNextFile();
-    if (!entry) {
-      Serial.println("** Done **");
+  while (true) // Boucle infinie pour lire tous les fichiers du répertoire
+  {
+    File entry = dir.openNextFile(); // Ouvre le prochain fichier dans le répertoire
+    if (!entry)                      // Si le fichier n'existe pas, on sort de la boucle et on affiche le message "Completed reading files"
+    {
+      Serial.println("Completed reading files");
       break;
     }
-    Serial.println(entry.name());
-    strcpy(trackList[i], entry.name());
-    i++;
+    Serial.println(entry.name());       // Affiche le nom du fichier
+    strcpy(trackList[i], entry.name()); // Copie le nom du fichier dans le array trackList
+    i++;                                // Incrémente le compteur de fichiers
   }
-  maxSongs = i - 1;
+  maxSongs = i - 1; // Détermine le nombre de fichiers dans le répertoire et -1 car le premier nom est system1
 }
 
-void loop() {
+void loop()
+{
 
-  val = analogRead(0);
-  audio.setVolume(volumeLevel(val));
+  val = analogRead(0); // Lecture de la valeur du potentiomètre
+  audio.setVolume(volumeLevel(val)); // Ajuste le volume selon la valeur du potentiomètre avec la valeur mapper entre 0 et 7
 
-  if (Serial.available()) {
+  if (Serial.available()) 
+  {
     mychar = Serial.read();
-    switch (mychar) {
-      case 'p':
-        if (audio.isPlaying()) {
-          audio.stopPlayback();
-        } else {
-          audio.play(trackList[index]);
-        }
-        printSongList();
-        break;
-      case 'n':
-        if (index < maxSongs) {
-          index++;
-          audio.play(trackList[index]);
-        } else {
-          index = 1;
-        }
-        printSongList();
-        break;
-      case 's':
-        Serial.println("testing branch");
+    switch (mychar)
+    {
+    case 'p':
+      if (audio.isPlaying())
+      {
+        audio.stopPlayback();
+      }
+      else
+      {
+        audio.play(trackList[index]);
+      }
+      printSongList();
+      break;
+    case 'n':
+      if (index < maxSongs)
+      {
+        index++;
+        audio.play(trackList[index]);
+      }
+      else
+      {
+        index = 1;
+      }
+      printSongList();
+      break;
+    case 's':
+      Serial.println("testing branch");
     }
   }
 }
-int volumeLevel(int val) {
+int volumeLevel(int val)
+{
   val = map(val, 0, 1023, 0, 7);
   return val;
 }
-void printSongList() {
-  for (int songList = 1; songList <= maxSongs; songList++) {
-    Serial.print(trackList[songList]);
-    if (index == songList) {
-      if (audio.isPlaying()) {
+void printSongList() // Affiche la liste des chansons avec la chanson en cours de lecture
+{
+  for (int songList = 1; songList <= maxSongs; songList++) // Boucle pour afficher la liste des chansons
+  {
+    Serial.print(trackList[songList]); 
+    if (index == songList) // Si la chanson en cours de lecture est égale à la chanson dans la boucle, on affiche "Playing"
+    {
+      if (audio.isPlaying())
+      {
         Serial.print("     Playing");
-      } else {
-        Serial.print("     Pause");
+      }
+      else
+      {
+        Serial.print("     Pause"); // Sinon, on affiche "Pause"
       }
     }
-    Serial.println("");
+    Serial.println(""); // Saut de ligne
   }
 }
-
