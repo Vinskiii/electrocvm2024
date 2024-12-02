@@ -1,4 +1,4 @@
-@startuml
+=@startuml
 
 fork 
     group printTrackNames
@@ -48,7 +48,7 @@ fork again
     end group
     group loop
     
-    :definir une variable (var) avec analogRead du POT;
+    repeat :definir une variable (var) avec analogRead du POT;
     :set le volume avec volumeLevel;
     :update les 2 boutons;
     
@@ -66,8 +66,7 @@ fork again
         endif
     endif
     :play song #index;
-    :printSongList;
-    
+    repeat while (:printSongList;)
     
     end group
 end merge
