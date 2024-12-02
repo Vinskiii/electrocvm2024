@@ -36,19 +36,15 @@ const byte SD_MISO_PIN = 50;  // Carte SD (MISO) sur la pin 12
 const byte SD_CLK_PIN = 52;   // Carte SD (SCK) sur la pin 13
 const byte STARTSTOP_PIN = 2;
 const byte NEXTSONG_PIN = 3;
-const byte SOUNDOUT_PIN = 5;
 int volume;
 int index;
 int maxSongs = 1;
 int val;
-int songList = 1;
-char mychar;
 TMRpcm audio;
 File root;
 Bounce startStopButton = Bounce();
 Bounce nextSongButton = Bounce();
 char trackList[255][20];
-int whichButtonPressed;
 
 void setup() {
   Serial.begin(115200);
@@ -57,13 +53,11 @@ void setup() {
   startStopButton.interval(5);
   nextSongButton.interval(5);
   audio.speakerPin = 11;
-  audio.setVolume(0);
   if (SD.begin()) {
     Serial.println("La carte SD a été initialisée");
     root = SD.open("/");
     printDirectory(root);
     index = 1;
-    audio.setVolume(3);
   } else {
     Serial.println("L’initialisation de la carte SD a échoué!");
     return;
