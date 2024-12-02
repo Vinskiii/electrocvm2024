@@ -44,7 +44,7 @@ TMRpcm audio;
 File root;
 Bounce startStopButton = Bounce();
 Bounce nextSongButton = Bounce();
-char trackList[255][20];
+char trackList[20][20];
 
 void setup() {
   Serial.begin(115200);
