@@ -1,0 +1,75 @@
+@startuml
+
+fork 
+    group printTrackNames
+    -[hidden]->
+    switch (index)
+    case (1)
+        : Nom song #1;
+    case (2)
+        : Nom song #2;    
+    case (3)
+        : Nom song #3;    
+    endswitch
+    :etc;
+    end group
+    kill
+
+
+fork again
+    group printSongList
+    -[hidden]->
+    :printSonglist;
+    while (il reste des fichiers non lu)
+            :ouvrir fichier #i;
+            :print file name;
+            :copy string dans array;
+            :incremente i;
+    endwhile (!entry)
+    
+    :definir maxSongs avec i - 1;
+    kill
+    end group
+fork again
+    group setup
+    -[hidden]->
+    :start;
+    if (On initialise la carte SD) then (yes)
+        :La carte SD a été initialisée;
+        else (no)
+        :L’initialisation de la
+        carte SD a échoué!;
+        :return;
+        kill
+    endif
+    :SD.open en root;
+    :print les fichiers dans root
+    avec printSongList;
+    end group
+    group loop
+    
+    :definir une variable (var) avec analogRead du POT;
+    :set le volume avec volumeLevel;
+    :update les 2 boutons;
+    
+    if (startStop) then 
+        if (isPlaying) then (true)
+            :arreter la chansom;
+        else (false)
+            :play song #index;
+        endif
+    else (nextSong)
+        if (index < maxSongs) then (true)
+            :incremente index;
+        else (false)
+            : set l'index a 1;
+        endif
+    endif
+    :play song #index;
+    :printSongList;
+    
+    
+    end group
+end merge
+kill
+@endum
