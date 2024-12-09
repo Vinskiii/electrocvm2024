@@ -1,1 +1,84 @@
 
+int redPin = 9;
+int greenPin = 10;
+int bluePin = 11;
+int order = 1;
+int i;
+
+
+void setup() {
+  Serial.begin(38400);
+  pinMode(11, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(9, OUTPUT);
+}
+
+void loop() {
+
+  increaseToMax(redPin);  //red
+
+  increaseToHalf(bluePin);  // red to rose
+
+  increaseToMax(bluePin);  // rose to magneta
+
+  decreaseFromMax(redPin);  // magneta to violet
+
+  decreaseFromHalf(redPin);  // violet to blue
+
+  increaseToHalf(greenPin);  // blue to azure
+
+  increaseToMax(greenPin);  // azure to cyan
+
+  decreaseFromMax(bluePin);  // cyan to spring green
+
+  decreaseFromHalf(bluePin);  // spring green to green
+
+  increaseToHalf(redPin);  // green to chartreuse
+
+  increaseToMax(redPin);  // chartreuse to yellow
+
+  decreaseFromMax(greenPin);  // yellow to orange
+
+  decreaseFromHalf(greenPin);  // orange to red
+}
+
+
+
+
+
+void increaseToMax(int pin) {
+  i = 128;
+  while (i < 255) {
+    analogWrite(pin, i);
+    i++;
+    delay(10);
+    Serial.println("up to max");
+  }
+}
+void increaseToHalf(int pin) {
+  i = 0;
+  while (i < 128) {
+    analogWrite(pin, i);
+    i++;
+    delay(10);
+    Serial.println("up to half");
+  }
+}
+void decreaseFromMax(int pin) {
+  i = 255;
+  while (i > 128) {
+    analogWrite(pin, i);
+    i--;
+    delay(10);
+    Serial.println("down to half");
+  }
+}
+void decreaseFromHalf(int pin) {
+  i = 128;
+  while (i > 0) {
+    analogWrite(pin, i);
+    i--;
+    delay(10);
+    Serial.println("down to 0");
+  }
+}
